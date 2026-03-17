@@ -86,7 +86,7 @@ fun Questionnaire(
   showNavigationLongScroll: Boolean = false,
   submitButtonText: String? = null,
   showSubmitAnywayWhenValidationFails: Boolean = true,
-  matchersProvider: QuestionnaireItemViewHolderFactoryMatchersProvider? = null,
+  matchersProvider: QuestionnaireItemViewFactoryMatchersProvider? = null,
   onSubmit: (suspend () -> QuestionnaireResponse) -> Unit,
   onCancel: () -> Unit,
 ) {
@@ -127,7 +127,7 @@ fun Questionnaire(
     }
   val effectiveMatchersProvider =
     remember(matchersProvider) {
-      matchersProvider ?: EmptyQuestionnaireItemViewHolderFactoryMatchersProvider
+      matchersProvider ?: EmptyQuestionnaireItemViewFactoryMatchersProvider
     }
 
   val viewModel: QuestionnaireViewModel =
@@ -181,7 +181,7 @@ fun Questionnaire(
  * Default empty implementation of QuestionnaireItemViewHolderFactoryMatchersProvider that provides
  * no custom matchers.
  */
-private object EmptyQuestionnaireItemViewHolderFactoryMatchersProvider :
-  QuestionnaireItemViewHolderFactoryMatchersProvider() {
-  override fun get() = emptyList<QuestionnaireItemViewHolderFactoryMatcher>()
+private object EmptyQuestionnaireItemViewFactoryMatchersProvider :
+  QuestionnaireItemViewFactoryMatchersProvider {
+  override fun get() = emptyList<QuestionnaireItemViewFactoryMatcher>()
 }

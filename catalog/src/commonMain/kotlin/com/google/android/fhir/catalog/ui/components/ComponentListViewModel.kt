@@ -19,6 +19,7 @@ package com.google.android.fhir.catalog.ui.components
 import android_fhir.catalog.generated.resources.Res
 import android_fhir.catalog.generated.resources.component_name_attachment
 import android_fhir.catalog.generated.resources.component_name_auto_complete
+import android_fhir.catalog.generated.resources.component_name_barcode_widget
 import android_fhir.catalog.generated.resources.component_name_boolean_choice
 import android_fhir.catalog.generated.resources.component_name_date_picker
 import android_fhir.catalog.generated.resources.component_name_date_time_picker
@@ -40,6 +41,7 @@ import android_fhir.catalog.generated.resources.component_name_text_field
 import android_fhir.catalog.generated.resources.component_name_time_picker
 import android_fhir.catalog.generated.resources.ic_attachment
 import android_fhir.catalog.generated.resources.ic_autocomplete
+import android_fhir.catalog.generated.resources.ic_barcode
 import android_fhir.catalog.generated.resources.ic_booleanchoice
 import android_fhir.catalog.generated.resources.ic_datepicker
 import android_fhir.catalog.generated.resources.ic_group_1278
@@ -197,6 +199,11 @@ class ComponentListViewModel : ViewModel() {
       Res.drawable.ic_location_on,
       Res.string.component_name_location_widget,
     ),
+    BARCODE_WIDGET(
+      "component_barcode_widget.json",
+      Res.drawable.ic_barcode,
+      Res.string.component_name_barcode_widget,
+    ),
     QUESTION_ITEM_CUSTOM_STYLE(
       "component_per_question_custom_style.json",
       Res.drawable.text_format_48dp,
@@ -228,6 +235,7 @@ class ComponentListViewModel : ViewModel() {
       ViewItem.ComponentItem(Component.ITEM_ANSWER_MEDIA),
       ViewItem.ComponentItem(Component.INITIAL_VALUE),
       ViewItem.ComponentItem(Component.LOCATION_WIDGET),
+      ViewItem.ComponentItem(Component.BARCODE_WIDGET),
       ViewItem.ComponentItem(Component.QUESTION_ITEM_CUSTOM_STYLE),
     )
 }

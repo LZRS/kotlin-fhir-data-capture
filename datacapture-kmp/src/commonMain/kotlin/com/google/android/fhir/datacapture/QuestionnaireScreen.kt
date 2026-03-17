@@ -142,7 +142,7 @@ internal const val QUESTIONNAIRE_PROGRESS_INDICATOR_TEST_TAG =
 @Composable
 internal fun QuestionnaireScreen(
   viewModel: QuestionnaireViewModel,
-  matchersProvider: QuestionnaireItemViewHolderFactoryMatchersProvider,
+  matchersProvider: QuestionnaireItemViewFactoryMatchersProvider,
 ) {
   val questionnaireState by viewModel.questionnaireStateFlow.collectAsStateWithLifecycle()
 
@@ -175,7 +175,7 @@ internal fun QuestionnaireScreen(
 private fun EditModeContent(
   state: QuestionnaireState,
   displayMode: DisplayMode.EditMode,
-  matchersProvider: QuestionnaireItemViewHolderFactoryMatchersProvider,
+  matchersProvider: QuestionnaireItemViewFactoryMatchersProvider,
   bottomNavItem: QuestionnaireAdapterItem.Navigation?,
 ) {
   var progress by remember { mutableIntStateOf(0) }
@@ -207,7 +207,7 @@ private fun EditModeContent(
       QuestionnaireEditList(
         items = state.items,
         displayMode = displayMode,
-        questionnaireItemViewHolderMatchers = matchersProvider.get(),
+        questionnaireItemViewHolderMatchers = remember(matchersProvider) { matchersProvider.get() },
         onUpdateProgressIndicator = { currentPage, totalCount ->
           progress = calculateProgressPercentage(count = (currentPage + 1), totalCount = totalCount)
         },

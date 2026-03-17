@@ -19,5 +19,8 @@
 
     <key>NSDesktopFolderUsageDescription</key>
     <string>Desktop access needed to select files for attachment</string>
+
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Location access needed for the location widget</string>
 </dict>
 </plist>

@@ -93,7 +93,7 @@ const val QUESTIONNAIRE_EDIT_LIST = "questionnaire_edit_list"
 internal fun QuestionnaireEditList(
   items: List<QuestionnaireAdapterItem>,
   displayMode: DisplayMode,
-  questionnaireItemViewHolderMatchers: List<QuestionnaireItemViewHolderFactoryMatcher>,
+  questionnaireItemViewHolderMatchers: List<QuestionnaireItemViewFactoryMatcher>,
   onUpdateProgressIndicator: (Int, Int) -> Unit,
 ) {
   val listState = rememberLazyListState()
@@ -332,29 +332,30 @@ private fun QuestionnaireReviewItem(
 fun getQuestionnaireItemViewFactory(
   questionnaireItem: Questionnaire.Item,
   questionnaireViewHolderType: QuestionnaireViewHolderType,
-  questionnaireItemViewHolderMatchers: List<QuestionnaireItemViewHolderFactoryMatcher>,
+  questionnaireItemViewHolderMatchers: List<QuestionnaireItemViewFactoryMatcher>,
 ): QuestionnaireItemViewFactory {
-  return when (questionnaireViewHolderType) {
-    QuestionnaireViewHolderType.EDIT_TEXT_SINGLE_LINE -> EditTextSingleLineViewFactory
-    QuestionnaireViewHolderType.EDIT_TEXT_MULTI_LINE -> EditTextMultiLineViewFactory
-    QuestionnaireViewHolderType.EDIT_TEXT_INTEGER -> EditTextIntegerViewFactory
-    QuestionnaireViewHolderType.EDIT_TEXT_DECIMAL -> EditTextDecimalViewFactory
-    QuestionnaireViewHolderType.QUANTITY -> QuantityViewFactory
-    QuestionnaireViewHolderType.DISPLAY -> DisplayViewFactory
-    QuestionnaireViewHolderType.SLIDER -> SliderViewFactory
-    QuestionnaireViewHolderType.PHONE_NUMBER -> EditTextPhoneNumberViewFactory
-    QuestionnaireViewHolderType.BOOLEAN_TYPE_PICKER -> BooleanChoiceViewFactory
-    QuestionnaireViewHolderType.RADIO_GROUP -> RadioGroupViewFactory
-    QuestionnaireViewHolderType.CHECK_BOX_GROUP -> CheckBoxGroupViewFactory
-    QuestionnaireViewHolderType.DIALOG_SELECT -> DialogSelectViewFactory
-    QuestionnaireViewHolderType.DROP_DOWN -> DropDownViewFactory
-    QuestionnaireViewHolderType.AUTO_COMPLETE -> AutoCompleteViewFactory
-    QuestionnaireViewHolderType.DATE_PICKER -> DateViewFactory
-    QuestionnaireViewHolderType.TIME_PICKER -> TimeViewFactory
-    QuestionnaireViewHolderType.DATE_TIME_PICKER -> DateTimeViewFactory
-    QuestionnaireViewHolderType.GROUP -> GroupViewFactory
-    QuestionnaireViewHolderType.ATTACHMENT -> AttachmentViewFactory
-  }
+  return questionnaireItemViewHolderMatchers.find { it.matches(questionnaireItem) }?.factory
+    ?: when (questionnaireViewHolderType) {
+      QuestionnaireViewHolderType.EDIT_TEXT_SINGLE_LINE -> EditTextSingleLineViewFactory
+      QuestionnaireViewHolderType.EDIT_TEXT_MULTI_LINE -> EditTextMultiLineViewFactory
+      QuestionnaireViewHolderType.EDIT_TEXT_INTEGER -> EditTextIntegerViewFactory
+      QuestionnaireViewHolderType.EDIT_TEXT_DECIMAL -> EditTextDecimalViewFactory
+      QuestionnaireViewHolderType.QUANTITY -> QuantityViewFactory
+      QuestionnaireViewHolderType.DISPLAY -> DisplayViewFactory
+      QuestionnaireViewHolderType.SLIDER -> SliderViewFactory
+      QuestionnaireViewHolderType.PHONE_NUMBER -> EditTextPhoneNumberViewFactory
+      QuestionnaireViewHolderType.BOOLEAN_TYPE_PICKER -> BooleanChoiceViewFactory
+      QuestionnaireViewHolderType.RADIO_GROUP -> RadioGroupViewFactory
+      QuestionnaireViewHolderType.CHECK_BOX_GROUP -> CheckBoxGroupViewFactory
+      QuestionnaireViewHolderType.DIALOG_SELECT -> DialogSelectViewFactory
+      QuestionnaireViewHolderType.DROP_DOWN -> DropDownViewFactory
+      QuestionnaireViewHolderType.AUTO_COMPLETE -> AutoCompleteViewFactory
+      QuestionnaireViewHolderType.DATE_PICKER -> DateViewFactory
+      QuestionnaireViewHolderType.TIME_PICKER -> TimeViewFactory
+      QuestionnaireViewHolderType.DATE_TIME_PICKER -> DateTimeViewFactory
+      QuestionnaireViewHolderType.GROUP -> GroupViewFactory
+      QuestionnaireViewHolderType.ATTACHMENT -> AttachmentViewFactory
+    }
 }
 
 /**

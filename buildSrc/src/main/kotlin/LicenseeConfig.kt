@@ -225,9 +225,10 @@ private fun Project.configureLicensee() {
     // Logback
     allowDependency("ch.qos.logback", "logback-core", "1.4.14") { because("LGPL") }
 
-    // KMP FileKit
-    allowUrl("https://github.com/vinceglb/FileKit/blob/main/LICENSE") { because("") }
-    allowUrl("https://github.com/hypfvieh/dbus-java/blob/master/LICENSE") { because("") }
+    // jai-imageio-core in zxing
+    allowDependency("com.github.jai-imageio", "jai-imageio-core", "1.4.0") {
+      because("https://github.com/jai-imageio/jai-imageio-core/blob/master/LICENSE.txt")
+    }
   }
 }
 
@@ -238,4 +239,9 @@ private val nonStandardLicenseUrls =
     "http://www.opensource.org/licenses/bsd-license.php",
     "https://asm.ow2.io/license.html",
     "https://developer.android.com/studio/terms.html",
+    "https://github.com/vinceglb/FileKit/blob/main/LICENSE",
+    "https://github.com/hypfvieh/dbus-java/blob/master/LICENSE",
+    "https://developers.google.com/ml-kit/terms",
+    "https://github.com/icerockdev/moko-permissions/blob/master/LICENSE.md",
+    "https://github.com/jordond/compass/blob/master/LICENSE",
   )

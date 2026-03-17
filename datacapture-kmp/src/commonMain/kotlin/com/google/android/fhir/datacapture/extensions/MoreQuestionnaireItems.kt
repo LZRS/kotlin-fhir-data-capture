@@ -504,7 +504,7 @@ internal val Questionnaire.Item.maxAllowedAttachmentSize: BigDecimal
 internal val MAX_ALLOWABLE_ATTACHMENT_SIZE = 15_728_640.toBigDecimal()
 
 /** A media that is attached to a [Questionnaire.Item]. */
-internal val Questionnaire.Item.itemMedia: Attachment?
+val Questionnaire.Item.itemMedia: Attachment?
   get() =
     (this.extension.find { it.url == EXTENSION_ITEM_MEDIA }?.value?.asAttachment()?.value)?.takeIf {
       it.contentType != null
