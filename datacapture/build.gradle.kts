@@ -1,167 +1,140 @@
-import Dependencies.removeIncompatibleDependencies
-import java.net.URL
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-  alias(libs.plugins.android.library)
-  alias(libs.plugins.kotlin.android)
-  alias(libs.plugins.kotlin.compose)
-  `maven-publish`
-  jacoco
-  alias(libs.plugins.dokka)
+  id("org.jetbrains.kotlin.multiplatform")
+  id("com.android.kotlin.multiplatform.library")
+  id("org.jetbrains.kotlin.plugin.compose")
+  id("org.jetbrains.compose.hot-reload")
+  id("org.jetbrains.compose")
+  alias(libs.plugins.ksp)
 }
 
-publishArtifact(Releases.DataCapture)
+group = "dev.ohs.fhir"
 
-createJacocoTestReportTask()
+kotlin {
+  jvmToolchain(21)
 
-android {
-  namespace = "com.google.android.fhir.datacapture"
-  compileSdk = Sdk.COMPILE_SDK
-  defaultConfig {
+  androidLibrary {
+    namespace = "dev.ohs.fhir.datacapture"
+    compileSdk = Sdk.COMPILE_SDK
     minSdk = Sdk.MIN_SDK
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    // Need to specify this to prevent junit runner from going deep into our dependencies
-    testInstrumentationRunnerArguments["package"] = "com.google.android.fhir.datacapture"
-    consumerProguardFile("proguard-rules.pro")
-  }
+    withJava()
+    withHostTestBuilder {}
+    withDeviceTestBuilder { sourceSetTreeName = "test" }
+      .configure { instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
 
-  buildFeatures {
-    viewBinding = true
-    compose = true
-  }
+    experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
 
-  buildTypes {
-    release {
-      isMinifyEnabled = false
-      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
+    compilations.configureEach {
+      compilerOptions.configure {
+        jvmTarget.set(
+          org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11,
+        )
+      }
+    }
+
+    packaging {
+      resources.excludes.addAll(
+        listOf("META-INF/ASL2.0", "META-INF/ASL-2.0.txt", "META-INF/LGPL-3.0.txt"),
+      )
     }
   }
-  compileOptions {
-    // Flag to enable support for the new language APIs
-    // See https://developer.android.com/studio/write/java8-support
-    isCoreLibraryDesugaringEnabled = true
+
+  val xcfName = "sharedKit"
+
+  iosX64 { binaries.framework { baseName = xcfName } }
+
+  iosArm64 { binaries.framework { baseName = xcfName } }
+
+  iosSimulatorArm64 { binaries.framework { baseName = xcfName } }
+
+  wasmJs {
+    browser()
+    binaries.library()
   }
 
-  packaging {
-    resources.excludes.addAll(
-      listOf("META-INF/ASL2.0", "META-INF/ASL-2.0.txt", "META-INF/LGPL-3.0.txt"),
-    )
-  }
+  jvm("desktop")
 
-  configureJacocoTestOptions()
+  js {
+    browser()
+    binaries.library()
+  }
 
   sourceSets {
-    getByName("androidTest").apply { resources.setSrcDirs(listOf("sampledata")) }
-
-    getByName("test").apply { resources.setSrcDirs(listOf("sampledata")) }
-  }
-
-  testOptions { animationsDisabled = true }
-  kotlin { jvmToolchain(11) }
-}
-
-afterEvaluate { configureFirebaseTestLabForLibraries() }
-
-configurations {
-  all {
-    exclude(module = "xpp3")
-    exclude(group = "net.sf.saxon", module = "Saxon-HE")
-    removeIncompatibleDependencies()
-  }
-}
-
-dependencies {
-  androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-  androidTestImplementation(libs.androidx.test.core)
-  androidTestImplementation(libs.androidx.test.espresso.contrib) {
-    // build fails with error "Duplicate class found" (org.checkerframework.checker.*)
-    exclude(group = "org.checkerframework", module = "checker")
-  }
-  androidTestImplementation(libs.androidx.test.espresso.core)
-  androidTestImplementation(libs.androidx.test.ext.junit)
-  androidTestImplementation(libs.androidx.test.ext.junit.ktx)
-  androidTestImplementation(libs.androidx.test.rules)
-  androidTestImplementation(libs.androidx.test.runner)
-  androidTestImplementation(libs.junit)
-  androidTestImplementation(libs.kotlinx.coroutines.test)
-  androidTestImplementation(libs.truth)
-
-  api(libs.hapi.fhir.structures.r4)
-
-  coreLibraryDesugaring(libs.desugar.jdk.libs)
-
-  implementation(libs.accompanist.themeadapter.material3)
-  implementation(libs.android.fhir.common)
-  implementation(libs.androidx.activity.compose)
-  implementation(libs.androidx.appcompat)
-  implementation(libs.androidx.compose.material3)
-  implementation(libs.androidx.compose.ui)
-  implementation(libs.androidx.compose.ui.graphics)
-  implementation(libs.androidx.compose.ui.tooling.preview)
-  implementation(libs.androidx.constraintlayout)
-  implementation(libs.androidx.core)
-  implementation(libs.androidx.fragment)
-  implementation(libs.androidx.lifecycle.viewmodel)
-  implementation(libs.androidx.navigation.compose)
-  implementation(libs.androidx.recyclerview)
-  implementation(libs.glide)
-  implementation(libs.hapi.fhir.caching.guava)
-  implementation(libs.hapi.fhir.validation) {
-    exclude(module = "commons-logging")
-    exclude(module = "httpclient")
-  }
-  implementation(libs.kotlin.stdlib)
-  implementation(libs.kotlinx.coroutines.core)
-  implementation(libs.material)
-  implementation(platform(libs.androidx.compose.bom))
-  implementation(libs.timber)
-
-  debugImplementation(libs.androidx.compose.ui.test.manifest)
-  debugImplementation(libs.androidx.compose.ui.tooling)
-
-  testImplementation(libs.androidx.fragment.testing)
-  testImplementation(libs.androidx.test.core)
-  testImplementation(libs.junit)
-  testImplementation(libs.kotlin.test.junit)
-  testImplementation(libs.kotlinx.coroutines.test)
-  testImplementation(libs.mockito.inline)
-  testImplementation(libs.mockito.kotlin)
-  testImplementation(libs.robolectric)
-  testImplementation(libs.truth)
-  testImplementation(project(":knowledge")) {
-    exclude(group = "com.google.android.fhir", module = "engine")
-  }
-
-  constraints {
-    Dependencies.hapiFhirConstraints().forEach { (libName, constraints) ->
-      api(libName, constraints)
-      implementation(libName, constraints)
-    }
-  }
-}
-
-tasks.dokkaHtml.configure {
-  outputDirectory.set(
-    file("../docs/use/api/${Releases.DataCapture.artifactId}/${Releases.DataCapture.version}"),
-  )
-  suppressInheritedMembers.set(true)
-  dokkaSourceSets {
-    named("main") {
-      moduleName.set(Releases.DataCapture.name)
-      moduleVersion.set(Releases.DataCapture.version)
-      includes.from("Module.md")
-      sourceLink {
-        localDirectory.set(file("src/main/java"))
-        remoteUrl.set(
-          URL("https://github.com/google/android-fhir/tree/master/datacapture/src/main/java"),
-        )
-        remoteLineSuffix.set("#L")
+    all {
+      languageSettings {
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions { freeCompilerArgs.add("-Xexpect-actual-classes") }
       }
-      externalDocumentationLink {
-        url.set(URL("https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-r4/"))
-        packageListUrl.set(
-          URL("https://hapifhir.io/hapi-fhir/apidocs/hapi-fhir-structures-r4/element-list"),
-        )
+    }
+
+    commonMain {
+      dependencies {
+        implementation(libs.material.icons.extended)
+        implementation(compose.runtime)
+        implementation(compose.foundation)
+        implementation(compose.material3)
+        implementation(compose.ui)
+        implementation(compose.components.resources)
+        implementation(compose.components.uiToolingPreview)
+        implementation(libs.fhir.path)
+        implementation(libs.navigation.compose)
+        implementation(libs.androidx.lifecycle.viewmodel.compose)
+        implementation(libs.androidx.lifecycle.runtime.compose)
+        implementation(libs.filekit.dialogs.compose)
+        implementation(libs.kermit)
+        implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlin.fhir)
+        implementation(libs.kotlinx.io.core)
+        implementation(libs.kotlinx.serialization.json)
+      }
+    }
+
+    commonTest {
+      dependencies {
+        implementation(libs.androidx.lifecycle.runtime.testing)
+        implementation(libs.kotlin.test)
+        implementation(libs.kotest.assertions.core)
+
+        @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+        implementation(compose.uiTest)
+      }
+    }
+
+    androidMain { resources.srcDir("res") }
+
+    getByName("androidDeviceTest") {
+      dependencies {
+        implementation(libs.androidx.compose.ui.test.junit4)
+        implementation(libs.androidx.compose.ui.test.manifest)
+        implementation(libs.androidx.test.core)
+        implementation(libs.androidx.test.ext.junit)
+        implementation(libs.androidx.test.ext.junit.ktx)
+        implementation(libs.androidx.test.runner)
+        implementation(libs.androidx.test.rules)
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(libs.truth)
+      }
+    }
+
+    getByName("androidHostTest") {
+      dependencies {
+        implementation(libs.androidx.fragment.testing)
+        implementation(libs.androidx.test.core)
+        implementation(libs.junit)
+        implementation(libs.kotlin.test.junit)
+        implementation(libs.kotlinx.coroutines.test)
+        implementation(libs.truth)
+      }
+    }
+
+    val desktopMain by getting {
+      dependencies {
+        implementation(compose.desktop.currentOs)
+        implementation(libs.kotlinx.coroutines.swing)
       }
     }
   }

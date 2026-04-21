@@ -12,9 +12,10 @@ plugins {
 }
 
 // configureRuler()
+group = "dev.ohs.fhir"
 
 android {
-  namespace = "com.google.android.fhir.catalog"
+  namespace = "dev.ohs.fhir.catalog"
   compileSdk = Sdk.COMPILE_SDK
 
   defaultConfig {
@@ -28,6 +29,7 @@ android {
   buildTypes {
     release {
       isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
@@ -47,8 +49,8 @@ kotlin {
 
   jvm("desktop")
 
-  val isWasmEnabled = project.findProperty("catalog.wasm.enabled") == "true"
-  if (isWasmEnabled) {
+//  val isWasmEnabled = project.findProperty("catalog.wasm.enabled") == "true"
+//  if (isWasmEnabled) {
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
       browser {
@@ -62,7 +64,7 @@ kotlin {
       }
       binaries.executable()
     }
-  }
+//  }
 
   listOf(
       iosX64(),
@@ -83,8 +85,6 @@ kotlin {
       implementation(libs.material)
       // TODO restore after these libraries are migrated to Kotlin Multiplatform
       //      implementation(project(":engine"))
-      //      implementation(project(":contrib:barcode"))
-      //      implementation(project(":contrib:locationwidget"))
     }
     commonMain.dependencies {
       implementation(compose.runtime)
@@ -103,7 +103,7 @@ kotlin {
       implementation(libs.navigation.compose)
       implementation(project(":contrib:barcode"))
       implementation(project(":contrib:locationwidget"))
-      implementation(project(":datacapture-kmp"))
+      implementation(project(":datacapture"))
     }
 
     val desktopMain by getting { dependencies { implementation(compose.desktop.currentOs) } }

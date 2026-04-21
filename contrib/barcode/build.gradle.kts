@@ -12,11 +12,13 @@ plugins {
   alias(libs.plugins.ksp)
 }
 
+group = "dev.ohs.fhir"
+
 kotlin {
   jvmToolchain(21)
 
   androidLibrary {
-    namespace = "com.google.android.fhir.datacapture.contrib.views.barcode"
+    namespace = "dev.ohs.fhir.datacapture.contrib.views.barcode"
     compileSdk = Sdk.COMPILE_SDK
     minSdk = Sdk.MIN_SDK
     withJava()
@@ -72,7 +74,7 @@ kotlin {
         implementation(compose.material3)
         implementation(compose.runtime)
         implementation(compose.ui)
-        implementation(project(":datacapture-kmp"))
+        implementation(project(":datacapture"))
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlin.fhir)
         implementation(libs.kscan)
