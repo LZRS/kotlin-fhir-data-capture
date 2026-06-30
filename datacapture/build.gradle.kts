@@ -156,6 +156,23 @@ licensee {
     .forEach { allowUrl(it) }
 }
 
+publishing {
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url = uri("https://maven.pkg.github.com/LZRS/kotlin-fhir-data-capture")
+      credentials {
+        username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+        password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+      }
+    }
+  }
+}
+
+tasks.withType<org.gradle.plugins.signing.Sign>().configureEach {
+  onlyIf { project.hasProperty("signingInMemoryKey") }
+}
+
 mavenPublishing {
   publishToMavenCentral()
   signAllPublications()
