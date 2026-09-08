@@ -47,9 +47,10 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import dev.ohs.fhir.datacapture.LocalDataCaptureConfig
 import dev.ohs.fhir.datacapture.extensions.toLocalDate
 import dev.ohs.fhir.datacapture.getLocalDateTimeFormatter
-import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration
 import kotlin_fhir_data_capture.datacapture.generated.resources.Res
 import kotlin_fhir_data_capture.datacapture.generated.resources.gm_calendar_today_24
 import kotlin_fhir_data_capture.datacapture.generated.resources.select_date
@@ -94,13 +95,14 @@ internal fun DateFieldItem(
 
   var showDatePickerModal by remember { mutableStateOf(false) }
   var typingJob by remember { mutableStateOf<Job?>(null) }
-  val postDelayedNewDateInput: (DateInput, Long) -> Unit =
+  val textInputDebounce = LocalDataCaptureConfig.current.textInputDebounce
+  val postDelayedNewDateInput: (DateInput, Duration) -> Unit =
     remember(dateInput) {
-      { newDateInput, delayInMillis ->
+      { newDateInput, debounce ->
         typingJob?.cancel() // Cancel previous debounce
         typingJob =
           coroutineScope.launch {
-            delay(delayInMillis.milliseconds) // Debounce delay
+            delay(debounce) // Debounce delay
             if (newDateInput != dateInput) {
               onDateInputEntry(newDateInput)
             }
@@ -139,7 +141,7 @@ internal fun DateFieldItem(
               text = formattedText,
               selection = TextRange(dateInputFormat.pattern.length),
             )
-          postDelayedNewDateInput(DateInput(formattedText, localDate), handleInputDebounceTime)
+          postDelayedNewDateInput(DateInput(formattedText, localDate), textInputDebounce)
         }
       }
     },
@@ -187,7 +189,7 @@ internal fun DateFieldItem(
               selection = TextRange(dateInputFormat.pattern.length),
             )
           val newDateInput = DateInput(display = dateDisplay, value = it)
-          postDelayedNewDateInput(newDateInput, 0L)
+          postDelayedNewDateInput(newDateInput, Duration.ZERO)
         }
       },
     ) {

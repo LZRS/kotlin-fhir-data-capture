@@ -17,6 +17,8 @@ package dev.ohs.fhir.datacapture
 
 import dev.ohs.fhir.model.r4.Coding
 import dev.ohs.fhir.model.r4.Resource
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Configuration for the DataCapture library. Supply an instance via [LocalDataCaptureConfig]:
@@ -48,6 +50,15 @@ data class DataCaptureConfig(
    * override the behaviour of existing components in the sdc.
    */
   val questionnaireItemView: QuestionnaireItemViewHolderFactoryMatchersProviderFactory? = null,
+
+  /**
+   * How long text input is allowed to settle before it is handed to the answer handler. Keystrokes
+   * arriving within this window replace the pending value instead of triggering separate updates,
+   * which keeps validation and expression evaluation off the typing path.
+   *
+   * Set this to [Duration.ZERO] to handle every keystroke immediately.
+   */
+  val textInputDebounce: Duration = 500.milliseconds,
 )
 
 /**

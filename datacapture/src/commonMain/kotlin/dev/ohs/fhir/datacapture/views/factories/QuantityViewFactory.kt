@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.ionspin.kotlin.bignum.decimal.BigDecimal
+import dev.ohs.fhir.datacapture.LocalDataCaptureConfig
 import dev.ohs.fhir.datacapture.extensions.hasCode
 import dev.ohs.fhir.datacapture.extensions.hasDisplay
 import dev.ohs.fhir.datacapture.extensions.itemMedia
@@ -94,12 +95,14 @@ internal object QuantityViewFactory : QuestionnaireItemViewFactory {
       coroutineScope.launch { handleInput(questionnaireViewItem, quantity) }
     }
 
+    val textInputDebounce = LocalDataCaptureConfig.current.textInputDebounce
     val composeViewQuestionnaireState =
-      remember(questionnaireViewItem) {
+      remember(questionnaireViewItem, textInputDebounce) {
         EditTextFieldState(
           initialInputText = text,
           handleTextInputChange = { quantity = UiQuantity(it, quantity.unitDropDown) },
           coroutineScope = coroutineScope,
+          debounce = textInputDebounce,
           hint = questionnaireViewItem.enabledDisplayItems.localizedFlyoverAnnotatedString,
           helperText = validationUiMessage.takeIf { !it.isNullOrBlank() } ?: requiredOptionalText,
           isError = !validationUiMessage.isNullOrBlank(),
