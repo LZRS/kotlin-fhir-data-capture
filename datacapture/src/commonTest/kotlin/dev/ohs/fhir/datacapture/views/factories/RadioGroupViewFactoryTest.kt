@@ -15,7 +15,10 @@
  */
 package dev.ohs.fhir.datacapture.views.factories
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
@@ -30,6 +33,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.unit.dp
 import dev.ohs.fhir.datacapture.extensions.ChoiceOrientationTypes
 import dev.ohs.fhir.datacapture.extensions.EXTENSION_CHOICE_ORIENTATION_URL
 import dev.ohs.fhir.datacapture.extensions.EXTENSION_ITEM_ANSWER_MEDIA
@@ -256,14 +260,20 @@ class RadioGroupViewFactoryTest {
       )
 
     setContent {
-      QuestionnaireRadioGroup(
-        QuestionnaireViewItem(
-          questionnaire,
-          QuestionnaireResponse.Item(linkId = FhirR4String(value = "radio-group-item")),
-          validationResult = NotValidated,
-          answersChangedCallback = { _, _, _, _ -> },
+      // Horizontal orientation uses a FlowRow whose options each carry Modifier.weight(1f).
+      // On a narrow viewport the options no longer fit on one line and FlowRow wraps them,
+      // making each option fill its line. Pin a wide viewport so the assertion below tests
+      // the side-by-side layout rather than the device's screen width.
+      Box(Modifier.requiredWidth(600.dp)) {
+        QuestionnaireRadioGroup(
+          QuestionnaireViewItem(
+            questionnaire,
+            QuestionnaireResponse.Item(linkId = FhirR4String(value = "radio-group-item")),
+            validationResult = NotValidated,
+            answersChangedCallback = { _, _, _, _ -> },
+          )
         )
-      )
+      }
     }
 
     onAllNodes(hasTestTag(RADIO_OPTION_TAG)).assertCountEquals(2)
