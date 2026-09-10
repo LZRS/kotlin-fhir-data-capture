@@ -215,16 +215,27 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: >-
-            ./gradlew :datacapture:connectedAndroidDeviceTest
-            --stacktrace
-            --no-daemon
-            --no-parallel
-            --no-configuration-cache
-            --build-cache
-            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"
-            -Dorg.gradle.workers.max=1
-            -Dkotlin.daemon.enabled=false
+          # Compose UI tests on an emulator intermittently hit Espresso/Compose
+          # synchronisation races ("isIdleNow() is returning true, but ...",
+          # "performMeasureAndLayout called during measure layout") that are unrelated to
+          # the assertions under test. Retry once so a flake does not fail the build; a
+          # genuine failure still fails both attempts.
+          script: |
+            run_tests() {
+              ./gradlew :datacapture:connectedAndroidDeviceTest \
+                --stacktrace \
+                --no-daemon \
+                --no-parallel \
+                --no-configuration-cache \
+                --build-cache \
+                -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" \
+                -Dorg.gradle.workers.max=1 \
+                -Dkotlin.daemon.enabled=false
+            }
+            run_tests || {
+              echo "::warning::Instrumented tests failed; retrying once to rule out emulator flake."
+              run_tests
+            }
 
       - name: Upload test reports
         if: always()
