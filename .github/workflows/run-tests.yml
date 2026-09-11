@@ -220,22 +220,14 @@ jobs:
           # "performMeasureAndLayout called during measure layout") that are unrelated to
           # the assertions under test. Retry once so a flake does not fail the build; a
           # genuine failure still fails both attempts.
-          script: |
-            run_tests() {
-              ./gradlew :datacapture:connectedAndroidDeviceTest \
-                --stacktrace \
-                --no-daemon \
-                --no-parallel \
-                --no-configuration-cache \
-                --build-cache \
-                -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8" \
-                -Dorg.gradle.workers.max=1 \
-                -Dkotlin.daemon.enabled=false
-            }
-            run_tests || {
-              echo "::warning::Instrumented tests failed; retrying once to rule out emulator flake."
-              run_tests
-            }
+          # android-emulator-runner splits `script` on newlines and runs each line in
+          # its own `sh -c`, so the retry must fold into a single line.
+          script: >-
+            run_tests() { ./gradlew :datacapture:connectedAndroidDeviceTest --stacktrace
+            --no-daemon --no-parallel --no-configuration-cache --build-cache
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8"
+            -Dorg.gradle.workers.max=1 -Dkotlin.daemon.enabled=false; };
+            run_tests || { echo "::warning::Instrumented tests failed; retrying once to rule out emulator flake."; run_tests; }
 
       - name: Upload test reports
         if: always()
